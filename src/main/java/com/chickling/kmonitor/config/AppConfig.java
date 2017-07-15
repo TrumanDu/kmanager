@@ -1,41 +1,58 @@
 package com.chickling.kmonitor.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 /**
  * @author Hulva Luva.H
  *
  */
+@Component
 public class AppConfig {
+	@Value("${elasticsearch.clustername}")
+	private String esclusterName;
+	@Value("${elasticsearch.hosts}")
 	private String esHosts;
-	private String esIndex;
+	@Value("${elasticsearch.index}")
+	private String esindex;
+	@Value("${elasticsearch.doctype}")
+	private String esdocType;
 
-	private Integer dataCollectFrequency = 1;
+	@Value("${kafka.data.collect.frequency:60}")
+	private Long dataCollectFrequency;
 
-	private String zkHosts;
-	private Integer zkSessionTimeout = 30 * 1000;
-	private Integer zkConnectionTimeout = 30 * 1000;
+	@Value("${zookeeper.hosts}")
+	private String zk;
+	@Value("${zookeeper.session.timeout:30*1000}")
+	private Integer zkSessionTimeout;
+	@Value("${zookeeper.connection.timeout:30*1000}")
+	private Integer zkConnectionTimeout;
 
-	private Boolean isAlertEnabled = false;
+	@Value("${alert.enable:true}")
+	private Boolean isAlertEnabled;
 
-	private Integer offsetInfoCacheQueue = 500;
+	@Value("${offsetinfo.cachequeue.size:100}")
+	private Integer offsetInfoCacheQueue;
+	@Value("${offsetinfo.handler.worker}")
 	private Integer offsetInfoHandler;
-	private String taskFolder = "tasks";
+	@Value("${task.storage.folder:tasks}")
+	private String taskFolder;
 
-	private Boolean smtpAuth = false;
-	private String smtpUser;
-	private String smtpPasswd;
-	private String smtpServer;
-	private String mailSender;
-	private String mailSubject;
+	@Value("${mail.auth}")
+	private Boolean auth;
+	@Value("${mail.user:user}")
+	private String mailUser;
+	@Value("${mail.password:pwd}")
+	private String mailPwd;
+	@Value("${mail.smtp.host}")
+	private String mailHost;
+	@Value("${mail.sender}")
+	private String sender;
+	@Value("${mail.subject}")
+	private String subject;
 
-	private Long excludeByLastSeen = 2592000L;
-
-	public String getZkHosts() {
-		return zkHosts;
-	}
-
-	public void setZkHosts(String zkHosts) {
-		this.zkHosts = zkHosts;
-	}
+	@Value("${offsetinfo.excludeby.lastseen}")
+	private Long excludeByLastSeen;
 
 	public Boolean getIsAlertEnabled() {
 		return isAlertEnabled;
@@ -43,6 +60,46 @@ public class AppConfig {
 
 	public void setIsAlertEnabled(Boolean isAlertEnabled) {
 		this.isAlertEnabled = isAlertEnabled;
+	}
+
+	public Boolean getAuth() {
+		return auth;
+	}
+
+	public void setAuth(Boolean auth) {
+		this.auth = auth;
+	}
+
+	public String getMailUser() {
+		return mailUser;
+	}
+
+	public void setMailUser(String mailUser) {
+		this.mailUser = mailUser;
+	}
+
+	public String getMailPwd() {
+		return mailPwd;
+	}
+
+	public void setMailPwd(String mailPwd) {
+		this.mailPwd = mailPwd;
+	}
+
+	public String getMailHost() {
+		return mailHost;
+	}
+
+	public void setMailHost(String mailHost) {
+		this.mailHost = mailHost;
+	}
+
+	public String getEsclusterName() {
+		return esclusterName;
+	}
+
+	public void setEsclusterName(String esclusterName) {
+		this.esclusterName = esclusterName;
 	}
 
 	public String getEsHosts() {
@@ -53,20 +110,36 @@ public class AppConfig {
 		this.esHosts = esHosts;
 	}
 
-	public String getEsIndex() {
-		return esIndex;
+	public String getEsindex() {
+		return esindex;
 	}
 
-	public void setEsIndex(String esIndex) {
-		this.esIndex = esIndex;
+	public void setEsindex(String esindex) {
+		this.esindex = esindex;
 	}
 
-	public Integer getDataCollectFrequency() {
+	public String getEsdocType() {
+		return esdocType;
+	}
+
+	public void setEsdocType(String esdocType) {
+		this.esdocType = esdocType;
+	}
+
+	public Long getDataCollectFrequency() {
 		return dataCollectFrequency;
 	}
 
-	public void setDataCollectFrequency(Integer dataCollectFrequency) {
+	public void setDataCollectFrequency(Long dataCollectFrequency) {
 		this.dataCollectFrequency = dataCollectFrequency;
+	}
+
+	public String getZk() {
+		return zk;
+	}
+
+	public void setZk(String zk) {
+		this.zk = zk;
 	}
 
 	public Integer getZkSessionTimeout() {
@@ -101,60 +174,28 @@ public class AppConfig {
 		this.offsetInfoHandler = offsetInfoHandler;
 	}
 
-	public Boolean getSmtpAuth() {
-		return smtpAuth;
-	}
-
-	public void setSmtpAuth(Boolean smtpAuth) {
-		this.smtpAuth = smtpAuth;
-	}
-
-	public String getSmtpUser() {
-		return smtpUser;
-	}
-
-	public void setSmtpUser(String smtpUser) {
-		this.smtpUser = smtpUser;
-	}
-
-	public String getSmtpPasswd() {
-		return smtpPasswd;
-	}
-
-	public void setSmtpPasswd(String smtpPasswd) {
-		this.smtpPasswd = smtpPasswd;
-	}
-
-	public String getSmtpServer() {
-		return smtpServer;
-	}
-
-	public void setSmtpServer(String smtpServer) {
-		this.smtpServer = smtpServer;
-	}
-
-	public String getMailSender() {
-		return mailSender;
-	}
-
-	public void setMailSender(String mailSender) {
-		this.mailSender = mailSender;
-	}
-
-	public String getMailSubject() {
-		return mailSubject;
-	}
-
-	public void setMailSubject(String mailSubject) {
-		this.mailSubject = mailSubject;
-	}
-
 	public String getTaskFolder() {
 		return taskFolder;
 	}
 
 	public void setTaskFolder(String taskFolder) {
 		this.taskFolder = taskFolder;
+	}
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 
 	public Long getExcludeByLastSeen() {

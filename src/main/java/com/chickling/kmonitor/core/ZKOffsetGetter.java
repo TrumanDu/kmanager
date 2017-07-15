@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.I0Itec.zkclient.exception.ZkNoNodeException;
-import org.apache.kafka.common.errors.BrokerNotAvailableException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.data.Stat;
 
@@ -17,6 +16,7 @@ import com.chickling.kmonitor.model.ZkDataAndStat;
 import com.chickling.kmonitor.utils.ZKUtils;
 
 import kafka.api.PartitionOffsetRequestInfo;
+import kafka.common.BrokerNotAvailableException;
 import kafka.common.TopicAndPartition;
 import kafka.consumer.ConsumerThreadId;
 import kafka.javaapi.OffsetRequest;
@@ -38,7 +38,7 @@ public class ZKOffsetGetter extends OffsetGetter {
 
 	public ZKOffsetGetter(AppConfig config) {
 		excludeByLastSeen = config.getExcludeByLastSeen() * 1000;
-		ZKUtils.init(config.getZkHosts(), config.getZkSessionTimeout(), config.getZkConnectionTimeout());
+		ZKUtils.init(config.getZk(), config.getZkSessionTimeout(), config.getZkConnectionTimeout());
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class ZKOffsetGetter extends OffsetGetter {
 			Map<String, scala.collection.immutable.List<ConsumerThreadId>> consumer_consumerThreadId = null;
 			try {
 				consumer_consumerThreadId = JavaConversions
-						.mapAsJavaMap(ZKUtils.getZKUtilsFromKafka().getConsumersPerTopic(consumer, true));
+						.mapAsJavaMap(ZkUtils.getConsumersPerTopic(ZKUtils.getZKClient(), consumer, true));
 			} catch (Exception e) {
 				LOG.warn("getActiveTopicMap-> getConsumersPerTopic for group: " + consumer + "failed! "
 						+ e.getMessage());
@@ -130,8 +130,8 @@ public class ZKOffsetGetter extends OffsetGetter {
 		ZkDataAndStat dataAndStat = ZKUtils
 				.readDataMaybeNull(ZkUtils.ConsumersPath() + "/" + group + "/" + "owners/" + topic + "/" + partitionId);
 		try {
-			Integer leader = (Integer) ZKUtils.getZKUtilsFromKafka()
-					.getLeaderForPartition(topic, Integer.parseInt(partitionId)).get();
+			Integer leader = (Integer) ZkUtils
+					.getLeaderForPartition(ZKUtils.getZKClient(), topic, Integer.parseInt(partitionId)).get();
 
 			SimpleConsumer consumer = null;
 			if (consumerMap.containsKey(leader)) {
@@ -198,17 +198,11 @@ public class ZKOffsetGetter extends OffsetGetter {
 	private Tuple2<String, Stat> readZkData(String path) {
 		Tuple2<String, Stat> offset_stat = null;
 		try {
-			offset_stat = ZKUtils.getZKUtilsFromKafka().readData(path);
+			offset_stat = ZkUtils.readData(ZKUtils.getZKClient(), path);
 		} catch (ZkNoNodeException znne) {
 			// TODO no offset record in zk?
 		}
 		return offset_stat;
-	}
-
-	@Override
-	public void close() {
-		ZKUtils.close();
-		super.close();
 	}
 
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chickling.kmonitor.alert.TaskContent;
 import com.chickling.kmonitor.alert.TaskManager;
-import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.initialize.Initializer;
 
 /**
  * @author Hulva Luva.H
@@ -32,7 +32,7 @@ public class AlertController {
 	@RequestMapping(value = "/isAlertEnabled", method = RequestMethod.GET)
 	public String isAlertEnabled() {
 		JSONObject response = new JSONObject();
-		response.put("isAlertEnabled", SystemManager.getConfig().getIsAlertEnabled());
+		response.put("isAlertEnabled", Initializer.isAlertEnabled);
 		return response.toString();
 	}
 

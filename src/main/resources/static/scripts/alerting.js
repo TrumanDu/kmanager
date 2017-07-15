@@ -3,7 +3,9 @@ function newAlertInOffsetHistory() {
 			.on(
 					'show.bs.modal',
 					function(event) {
-						var button = $(event.relatedTarget);
+						var button = $(event.relatedTarget) // Button that
+						// triggered the
+						// modal
 						var topic = button.data('topic');
 						var group = button.data('group');
 						var modal = $(this);

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.kafka.common.errors.BrokerNotAvailableException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.data.Stat;
 import org.json.JSONObject;
@@ -27,7 +26,7 @@ import com.chickling.kmonitor.model.TopicDetails;
 import com.chickling.kmonitor.utils.ZKUtils;
 
 import kafka.cluster.Broker;
-import kafka.cluster.EndPoint;
+import kafka.common.BrokerNotAvailableException;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.utils.ZkUtils;
 import scala.Option;
@@ -74,8 +73,8 @@ public abstract class OffsetGetter {
 		String jsonString = null;
 		JSONObject brokerInfoJson = null;
 		try {
-			Tuple2<Option<String>, Stat> brokerInfo_stat = ZKUtils.getZKUtilsFromKafka()
-					.readDataMaybeNull(ZkUtils.BrokerIdsPath() + "/" + bId);
+			Tuple2<Option<String>, Stat> brokerInfo_stat = ZkUtils.readDataMaybeNull(ZKUtils.getZKClient(),
+					ZkUtils.BrokerIdsPath() + "/" + bId);
 			if (brokerInfo_stat._1.isEmpty()) {
 				throw new BrokerNotAvailableException("Broker id " + bId + " does not exist");
 			}
@@ -91,8 +90,8 @@ public abstract class OffsetGetter {
 	public List<OffsetInfo> processTopic(String group, String topic) throws Exception {
 		List<String> partitionIds = null;
 		try {
-			partitionIds = JavaConversions.seqAsJavaList(ZKUtils.getZKUtilsFromKafka()
-					.getChildren(ZkUtils.BrokerTopicsPath() + "/" + topic + "/partitions"));
+			partitionIds = JavaConversions.seqAsJavaList(ZkUtils.getChildren(ZKUtils.getZKClient(),
+					ZkUtils.BrokerTopicsPath() + "/" + topic + "/partitions"));
 		} catch (Exception e) {
 			if (e instanceof NoNodeException) {
 				LOG.warn("Is topic >" + topic + "< exists!", e);
@@ -165,7 +164,7 @@ public abstract class OffsetGetter {
 		List<String> topics = null;
 		try {
 			topics = JavaConversions
-					.seqAsJavaList(ZKUtils.getZKUtilsFromKafka().getChildren(ZkUtils.BrokerTopicsPath()));
+					.seqAsJavaList(ZkUtils.getChildren(ZKUtils.getZKClient(), ZkUtils.BrokerTopicsPath()));
 		} catch (Exception e) {
 			LOG.error("could not get topics because of " + e.getMessage(), e);
 		}
@@ -175,10 +174,9 @@ public abstract class OffsetGetter {
 	public Node getClusterViz() {
 		Node rootNode = new Node("KafkaCluster");
 		List<Node> childNodes = new ArrayList<Node>();
-		List<Broker> brokers = JavaConversions.seqAsJavaList(ZKUtils.getZKUtilsFromKafka().getAllBrokersInCluster());
+		List<Broker> brokers = JavaConversions.seqAsJavaList(ZkUtils.getAllBrokersInCluster(ZKUtils.getZKClient()));
 		brokers.forEach(broker -> {
-			List<EndPoint> endPoints = JavaConversions.seqAsJavaList(broker.endPoints().seq());
-			childNodes.add(new Node(endPoints.get(0).host() + ":" + endPoints.get(0).port(), null));
+			childNodes.add(new Node(broker.host() + ":" + broker.port(), null));
 		});
 		rootNode.setChildren(childNodes);
 		return rootNode;
@@ -212,8 +210,9 @@ public abstract class OffsetGetter {
 	}
 
 	/**
-	 * Returns details for a given topic such as the active consumers pulling off of
-	 * it and for each of the active consumers it will return the consumer data
+	 * Returns details for a given topic such as the active consumers pulling
+	 * off of it and for each of the active consumers it will return the
+	 * consumer data
 	 * 
 	 * @throws Exception
 	 */
@@ -270,14 +269,10 @@ public abstract class OffsetGetter {
 	}
 
 	public void close() {
-		try {
-			Iterator<Entry<Integer, SimpleConsumer>> it = consumerMap.entrySet().iterator();
-			while (it.hasNext()) {
-				LOG.debug("Closing consumer: " + it.next().getValue().clientId());
-				it.next().getValue().close();
-			}
-		} catch (Exception e) {
-			LOG.warn("Close SimpleConsumer: " + e.getMessage());
+		Iterator<Entry<Integer, SimpleConsumer>> it = consumerMap.entrySet().iterator();
+		while (it.hasNext()) {
+			LOG.debug("Closing consumer: " + it.next().getValue().clientId());
+			it.next().getValue().close();
 		}
 	}
 

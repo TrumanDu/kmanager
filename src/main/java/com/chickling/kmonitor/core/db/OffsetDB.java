@@ -19,8 +19,4 @@ public interface OffsetDB {
 	OffsetHistory offsetHistory(String group, String topic);
 
 	OffsetHistory offsetHistory(OffsetHistoryQueryParams params);
-	
-	void close();
-	
-	boolean check();
 }

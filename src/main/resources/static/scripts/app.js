@@ -42,30 +42,12 @@ var app = angular.module('offsetapp',
 				templateUrl : "views/alerts.html",
 				controller : "AlertTaskListCtrl"
 			})
-			.when("/setting", {
-				templateUrl : "views/setting.html",
-				controller : "SettingCtrl"
-			})
-			/*
-			 * .when("/broker/:endpoint", { templateUrl : "views/broker.html",
-			 * controller : "BrokerCtrl" })
-			 */;
+			/*.when("/broker/:endpoint", {
+				templateUrl : "views/broker.html",
+				controller : "BrokerCtrl"
+			})*/;
 		;
-	}).factory('isSystemReadyInterceptor', ["$location", function($location) {
-		var isSystemReadyInterceptor = {
-			// request: function(config) {
-			// },
-			response: function(response) {
-				if(response.data.isSystemReady!=undefined && !response.data.isSystemReady){
-					$location.path("/setting");
-				}
-				return response;
-			}
-		}
-		return isSystemReadyInterceptor;
-	}]).config(['$httpProvider', function($httpProvider) {
-		$httpProvider.interceptors.push('isSystemReadyInterceptor');
-	}]);
+	});
 
 angular.module("offsetapp.services", [ "ngResource" ])
 	.factory("offsetinfo", [ "$resource", "$http", function($resource, $http) {
@@ -189,19 +171,6 @@ angular.module("offsetapp.services", [ "ngResource" ])
 			},
 			isAlertEnabled: function(){
 				return $http.get("./alerting/isAlertEnabled");
-			},
-			postSetting: function(requestBody, cb) {
-				$http({
-				    method: 'POST',
-				    url: "./setting",
-				    headers: {'Content-Type': 'application/json'},
-				    data: requestBody
-				}).success(function (response) {
-					cb(response);
-				});
-			},
-			getSetting: function() {
-				return $http.get("./setting");
 			}
 		};
 	} ]);

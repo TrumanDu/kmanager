@@ -3,6 +3,8 @@ package com.chickling.kmonitor.alert;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +16,8 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.chickling.kmonitor.config.AppConfig;
 import com.google.gson.Gson;
+import com.chickling.kmonitor.config.AppConfig;
 
 /**
  * @ClassName
@@ -110,4 +112,21 @@ public class TaskManager {
 			logger.error("create task file failed!", e);
 		}
 	}
+
+	public static String loadFileContent(String filePath) {
+		String contents = null;
+		try {
+			while (!(new File(filePath)).canRead()) {
+				Thread.sleep(100);
+			}
+			contents = new String(Files.readAllBytes(Paths.get(filePath)));
+		} catch (Exception e) {
+			logger.error("load file" + filePath + " failed!", e);
+		}
+		if (contents == null) {
+			throw new RuntimeException("task file is empty! Pls check file: " + filePath);
+		}
+		return contents;
+	}
+
 }

@@ -30,11 +30,11 @@ public class EmailSender {
 	public static void sendEmail(String message, String sendTo) {
 		Properties properties = System.getProperties();
 
-		if (config.getSmtpAuth()) {
-			properties.setProperty("mail.user", config.getSmtpUser());
-			properties.setProperty("mail.password", config.getSmtpPasswd());
+		if (config.getAuth()) {
+			properties.setProperty("mail.user", config.getMailUser());
+			properties.setProperty("mail.password", config.getMailPwd());
 		}
-		properties.setProperty("mail.smtp.host", config.getSmtpServer());
+		properties.setProperty("mail.smtp.host", config.getMailHost());
 
 		Session session = Session.getDefaultInstance(properties);
 
@@ -42,7 +42,7 @@ public class EmailSender {
 
 		try {
 			String[] sendToArr = sendTo.split(";");
-			mimeMessage.setFrom(new InternetAddress(config.getMailSender()));
+			mimeMessage.setFrom(new InternetAddress(config.getSender()));
 			if (sendToArr.length > 1) {
 				String cc = "";
 				for (int i = 1; i < sendToArr.length; i++) {
@@ -52,7 +52,7 @@ public class EmailSender {
 			}
 			mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(sendToArr[0]));
 
-			mimeMessage.setSubject(config.getMailSubject());
+			mimeMessage.setSubject(config.getSubject());
 			mimeMessage.setSentDate(new Date());
 			mimeMessage.setContent(message, "text/html");
 

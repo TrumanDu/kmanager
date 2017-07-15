@@ -48,34 +48,29 @@ public class ElasticsearchUtil {
 	static TransportClient client = null;
 
 	private String indexPrefix;
+	private String docType;
 
-	public ElasticsearchUtil(String stringHosts) {
-		initClient(stringHosts);
+	public ElasticsearchUtil(String clusterName, String stringHosts) {
+		initClient(clusterName, stringHosts);
 	}
 
-	public boolean check() {
-		return client.connectedNodes().isEmpty();
-	}
-
-	private void initClient(String stringHosts) {
-		Settings settings = Settings.settingsBuilder().put("client.transport.ignore_cluster_name", true).build();
+	private void initClient(String clusterName, String stringHosts) {
+		Settings settings = Settings.settingsBuilder().put("cluster.name", clusterName).build();
 		client = TransportClient.builder().settings(settings).build();
 		String[] hosts = stringHosts.split(",");
 		for (String host : hosts) {
 			String[] ha = host.split(":");
-			if (ha.length < 2) {
-				throw new RuntimeException("Elasticsearch host should be like-> 127.0.0.1:9300");
-			}
 			client.addTransportAddress(
 					new InetSocketTransportAddress(new InetSocketAddress(ha[0], Integer.parseInt(ha[1]))));
 		}
 	}
 
-	public void setIndexAndType(String index) {
+	public void setIndexAndType(String index, String type) {
 		this.indexPrefix = index + "-";
+		this.docType = type;
 	}
 
-	public void bulkIndex(JSONObject data, String docType) {
+	public void bulkIndex(JSONObject data) {
 		BulkProcessor bulkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener() {
 			@Override
 			public void beforeBulk(long executionId, BulkRequest request) {
@@ -107,7 +102,7 @@ public class ElasticsearchUtil {
 		}
 	}
 
-	public List<OffsetPoints> scrollsSearcher(OffsetHistoryQueryParams params, String docType) {
+	public List<OffsetPoints> scrollsSearcher(OffsetHistoryQueryParams params) {
 		int parallism = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(parallism);
 
@@ -253,7 +248,7 @@ public class ElasticsearchUtil {
 	// }
 	// }
 
-	public List<OffsetPoints> offsetHistory(String docType, String group, String topic) {
+	public List<OffsetPoints> offsetHistory(String group, String topic) {
 		int parallism = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(parallism);
 
@@ -318,10 +313,6 @@ public class ElasticsearchUtil {
 		}
 
 		return result;
-	}
-
-	public void close() {
-		client.close();
 	}
 
 	class GenerateOffsetHistoryDataset implements Callable<List<OffsetPoints>> {

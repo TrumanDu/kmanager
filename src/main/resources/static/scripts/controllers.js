@@ -211,58 +211,6 @@ angular.module('offsetapp.controllers', [ "offsetapp.services" ])
 				}
 			});
 		} ])
-		.controller("SettingCtrl", [ "$scope", "offsetinfo",
-		function($scope, offsetinfo) {
-			var settingFormModal = {
-					zkHosts: "",
-					dataCollectFrequency: 1,
-					excludeByLastSeen: 2592000,
-					esHosts: "",
-					esIndex: "",
-					isAlertEnabled: false,
-					smtpServer: "",
-					smtpAuth: false,
-					smtpUser: "",
-					smtpPasswd: "",
-					mailSender: "",
-					mailSubject: ""
-			}
-			offsetinfo.getSetting().success(function(d) {
-				if(d.isSystemReady!=undefined && !d.isSystemReady){
-					$scope.settingForm = settingFormModal;
-				}else{
-					$scope.settingForm = d;
-				}
-			});
-			$scope.submitSetting = function() {
-				if(!$scope.settingForm.isAlertEnabled){
-					$scope.settingForm.smtpServer = "";
-					$scope.settingForm.smtpAuth = false;
-					$scope.settingForm.smtpUser = "";
-					$scope.settingForm.smtpPasswd = "";
-					$scope.settingForm.mailSender = "";
-					$scope.settingForm.mailSubject = "";
-				}
-				
-				offsetinfo.postSetting($scope.settingForm, function(d) {
-					if(d.isSystemReady!=undefined && d.isSystemReady){
-						swal({
-							title : "Setting updated! Kmonitor is ready to use!",
-							type : "success",
-							timer : 1000,
-							showConfirmButton : false
-						});
-					}else{
-						swal({
-							title : "Something went wrong!",
-							text: d.message,
-							type : "error",
-							showConfirmButton : true
-						});
-					}
-				});
-			}
-		} ])
 		/*.controller("BrokerCtrl", [ "$scope", "$routeParams", "offsetinfo",
 		function($scope, $routeParams, offsetinfo) {
 			$scope.loading = true;

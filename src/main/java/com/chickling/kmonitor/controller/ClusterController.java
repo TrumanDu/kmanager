@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.initialize.Initializer;
 import com.chickling.kmonitor.model.Node;
 
 /**
@@ -17,6 +17,6 @@ public class ClusterController {
 
 	@RequestMapping(value = "/clusterlist", method = RequestMethod.GET)
 	public Node getTopicList() {
-		return SystemManager.og.getClusterViz();
+		return Initializer.og.getClusterViz();
 	}
 }

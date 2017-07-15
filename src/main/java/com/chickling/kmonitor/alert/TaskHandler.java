@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.chickling.kmonitor.email.EmailSender;
 import com.chickling.kmonitor.email.Template;
-import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.initialize.Initializer;
 import com.chickling.kmonitor.model.KafkaInfo;
 import com.chickling.kmonitor.model.OffsetInfo;
 
@@ -26,7 +26,7 @@ public class TaskHandler implements Runnable {
 	public void run() {
 		try {
 			while (true) {
-				KafkaInfo kafkaInfo = SystemManager.offsetInfoCacheQueue.take();
+				KafkaInfo kafkaInfo = Initializer.offsetInfoCacheQueue.take();
 
 				Map<String, Set<OffsetInfo>> cachedTriggeredOffsetInfo = new HashMap<String, Set<OffsetInfo>>();
 

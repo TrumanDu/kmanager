@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.initialize.Initializer;
 import com.chickling.kmonitor.model.OffsetHistory;
 import com.chickling.kmonitor.model.OffsetHistoryQueryParams;
 
@@ -24,7 +24,7 @@ public class QueryController {
 	public OffsetHistory queryOffsetHistoryWithOpt(@RequestBody OffsetHistoryQueryParams params) {
 		OffsetHistory offsetHistory = null;
 		try {
-			offsetHistory = SystemManager.db.offsetHistory(params);
+			offsetHistory = Initializer.db.offsetHistory(params);
 		} catch (Exception e) {
 			LOG.warn("offsetHistory Ops~" + e.getMessage());
 		}

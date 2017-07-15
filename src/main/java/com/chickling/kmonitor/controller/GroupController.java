@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.initialize.Initializer;
 import com.chickling.kmonitor.model.KafkaInfo;
 import com.chickling.kmonitor.model.OffsetHistory;
 
@@ -27,7 +27,7 @@ public class GroupController {
 
 	@RequestMapping(value = { "", "/" }, method = RequestMethod.GET)
 	public List<String> getGroups() {
-		List<String> groups = SystemManager.og.getGroups();
+		List<String> groups = Initializer.og.getGroups();
 		Collections.sort(groups);
 		return groups;
 	}
@@ -36,7 +36,7 @@ public class GroupController {
 	public KafkaInfo getGroupInfo(@PathVariable String group) {
 		KafkaInfo kafkaInfo = null;
 		try {
-			kafkaInfo = SystemManager.og.getInfo(group, new ArrayList<String>());
+			kafkaInfo = Initializer.og.getInfo(group, new ArrayList<String>());
 		} catch (Exception e) {
 			LOG.warn("Ops~", e);
 		}
@@ -47,7 +47,7 @@ public class GroupController {
 	public OffsetHistory getGroupTopicOffsetHistory(@PathVariable String group, @PathVariable String topic) {
 		OffsetHistory offsetHistory = null;
 		try {
-			offsetHistory = SystemManager.db.offsetHistory(group, topic);
+			offsetHistory = Initializer.db.offsetHistory(group, topic);
 		} catch (Exception e) {
 			LOG.warn("offsetHistory Ops~" + e.getMessage());
 		}

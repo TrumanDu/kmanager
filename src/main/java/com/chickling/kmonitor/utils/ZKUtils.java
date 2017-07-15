@@ -36,34 +36,26 @@ public class ZKUtils {
 
 	private static ZkClient zkClient = null;
 	private static ZkConnection zkConnection = null;
-	private static ZkUtils zkUtilsFromKafka = null;
 
 	public static void init(String zkHosts, int zkSessionTimeout, int zkConnectionTimeout) {
-		try {
-			LOG.debug("init ZKUtil with " + zkHosts + " - " + zkSessionTimeout + " - " + zkConnectionTimeout);
-			if (zkConnection == null) {
-				zkConnection = new ZkConnection(zkHosts);
-			}
-			if (zkClient == null) {
-				zkClient = new ZkClient(zkConnection, zkConnectionTimeout, new ZkSerializer() {
+		LOG.debug("init ZKUtil with " + zkHosts + " - " + zkSessionTimeout + " - " + zkConnectionTimeout);
+		if (zkConnection == null) {
+			zkConnection = new ZkConnection(zkHosts);
+		}
+		if (zkClient == null) {
+			zkClient = new ZkClient(zkConnection, zkConnectionTimeout, new ZkSerializer() {
 
-					@Override
-					public byte[] serialize(Object paramObject) throws ZkMarshallingError {
-						return ZKStringSerializer.serialize(paramObject);
-					}
+				@Override
+				public byte[] serialize(Object paramObject) throws ZkMarshallingError {
+					return ZKStringSerializer.serialize(paramObject);
+				}
 
-					@Override
-					public Object deserialize(byte[] paramArrayOfByte) throws ZkMarshallingError {
-						return ZKStringSerializer.deserialize(paramArrayOfByte);
-					}
+				@Override
+				public Object deserialize(byte[] paramArrayOfByte) throws ZkMarshallingError {
+					return ZKStringSerializer.deserialize(paramArrayOfByte);
+				}
 
-				});
-			}
-			if (zkUtilsFromKafka == null) {
-				zkUtilsFromKafka = new ZkUtils(zkClient, zkConnection, false);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("Init ZKUtils failed! " + e.getMessage());
+			});
 		}
 	}
 
@@ -71,12 +63,8 @@ public class ZKUtils {
 		return zkClient;
 	}
 
-	public static ZkUtils getZKUtilsFromKafka() {
-		return zkUtilsFromKafka;
-	}
-
 	public static Set<TopicAndPartition> getAllPartitions() {
-		return JavaConversions.setAsJavaSet(zkUtilsFromKafka.getAllPartitions());
+		return JavaConversions.setAsJavaSet(ZkUtils.getAllPartitions(zkClient));
 	}
 
 	public static Map<String, List<Integer>> getPartitionsForTopics(List<String> topics) {
@@ -123,16 +111,16 @@ public class ZKUtils {
 	}
 
 	public static List<String> getAllTopics() {
-		return JavaConversions.seqAsJavaList(zkUtilsFromKafka.getAllTopics());
+		return JavaConversions.seqAsJavaList(ZkUtils.getAllTopics(zkClient));
 	}
 
 	public static Option<Broker> getBrokerInfo(int brokerId) {
 		// Option[Broker] = zkUtilsFromKafka.getBrokerInfo(zkClient, brokerId)
-		return zkUtilsFromKafka.getBrokerInfo(brokerId);
+		return ZkUtils.getBrokerInfo(zkClient, brokerId);
 	}
 
 	public static List<String> getConsumersInGroup(String group) {
-		return JavaConversions.seqAsJavaList(zkUtilsFromKafka.getConsumersInGroup(group));
+		return JavaConversions.seqAsJavaList(ZkUtils.getConsumersInGroup(zkClient, group));
 
 	}
 
@@ -141,7 +129,7 @@ public class ZKUtils {
 	}
 
 	public static boolean pathExists(String path) {
-		return zkUtilsFromKafka.pathExists(path);
+		return ZkUtils.pathExists(zkClient, path);
 	}
 
 	public static List<String> getChildren(String path) {
@@ -218,22 +206,5 @@ public class ZKUtils {
 	// }
 	// return null;
 	// }
-	public static void close() {
-		try {
-			if (zkUtilsFromKafka != null) {
-				zkUtilsFromKafka.close();
-				zkUtilsFromKafka = null;
-			}
-			if (zkClient != null) {
-				zkClient.close();
-				zkClient = null;
-			}
-			if (zkConnection != null) {
-				zkConnection.close();
-				zkConnection = null;
-			}
-		} catch (InterruptedException e) {
-			LOG.error("ZKUtils close() error! ", e);
-		}
-	}
+
 }
