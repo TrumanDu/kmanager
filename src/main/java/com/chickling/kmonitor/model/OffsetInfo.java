@@ -32,8 +32,22 @@ public class OffsetInfo {
 		this.modified = modified;
 		this.setLag();
 	}
+	
+	public OffsetInfo(String group, String topic, Integer partition, Long offset, Long logSize, String owner, Long creation, Long modified,
+      Long lag) {
+    super();
+    this.group = group;
+    this.topic = topic;
+    this.partition = partition;
+    this.offset = offset;
+    this.logSize = logSize;
+    this.owner = owner;
+    this.creation = creation;
+    this.modified = modified;
+    this.lag = lag;
+  }
 
-	public String getGroup() {
+  public String getGroup() {
 		return group;
 	}
 

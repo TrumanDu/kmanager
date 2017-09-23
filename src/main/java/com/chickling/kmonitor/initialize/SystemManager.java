@@ -133,6 +133,8 @@ public class SystemManager {
         public void run() {
           try {
             List<String> groups = og.getGroups();
+            List<String> groupsCommitToBroker = SystemManager.og.getGroupsCommittedToBroker();
+            groups.addAll(groupsCommitToBroker);
             groups.forEach(group -> {
               kafkaInfoCollectAndSavePool.submit(new GenerateKafkaInfoTask(group));
             });

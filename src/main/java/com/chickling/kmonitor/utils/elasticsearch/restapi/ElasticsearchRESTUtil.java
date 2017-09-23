@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ import com.chickling.kmonitor.utils.elasticsearch.Ielasticsearch;
  */
 public class ElasticsearchRESTUtil implements Ielasticsearch {
   private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchRESTUtil.class);
-  private static String RERST_HOST;
+  private static String[] RERST_HOST;
   private static RestTemplate REST;
   private static HttpComponentsClientHttpRequestFactory httpRequestFactory;
   private static HttpHeaders headers;
@@ -54,7 +55,7 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
   }
 
   public ElasticsearchRESTUtil(String restHost) {
-    RERST_HOST = restHost;
+    RERST_HOST = restHost.split(",");
   }
 
   /**
@@ -103,7 +104,7 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
     if (!hasData) {
       return;
     }
-    ResponseEntity<String> response = REST.exchange("http://" + RERST_HOST + "/_bulk", HttpMethod.POST,
+    ResponseEntity<String> response = REST.exchange("http://" + RERST_HOST[ThreadLocalRandom.current().nextInt(0, RERST_HOST.length)] + "/_bulk", HttpMethod.POST,
         new HttpEntity<String>(bulkData.toString(), headers), String.class);
     // TODO Do something with response?
     response.getBody();
@@ -125,10 +126,14 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
           dateHistogram(sFormat.parse(rangeFrom).getTime(), Long.parseLong(params.getRangeto()), params.getInterval());
 
       List<Future<List<OffsetPoints>>> futureList = new ArrayList<Future<List<OffsetPoints>>>();
+      
+      
+      String url = "http://" + RERST_HOST[ThreadLocalRandom.current().nextInt(0, RERST_HOST.length)] + "/" + indexNameSearch + "/" + docType + "/_search?scroll=1m";
+      String reqBody =ScrollSearchTemplate.getScrollSearchBody(params.getTopic(), params.getGroup(), rangeFrom,
+          sFormat.format(new Date(Long.parseLong(params.getRangeto()))));
 
-      ResponseEntity<String> response = REST.exchange("http://" + RERST_HOST + "/" + indexNameSearch + "/" + docType + "/_search?scroll=1m",
-          HttpMethod.POST, new HttpEntity<String>(ScrollSearchTemplate.getScrollSearchBody(params.getTopic(), params.getGroup(), rangeFrom,
-              sFormat.format(new Date(Long.parseLong(params.getRangeto())))), headers),
+      ResponseEntity<String> response = REST.exchange(url,
+          HttpMethod.POST, new HttpEntity<String>(reqBody, headers),
           String.class);
 
       JSONObject searchResult = null;
@@ -146,7 +151,7 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
           LOG.warn("Ops...GenerateOffsetHistoryDataset went wrong! " + e.getMessage());
         }
 
-        response = REST.exchange("http://" + RERST_HOST + "/_search/scroll", HttpMethod.POST,
+        response = REST.exchange("http://" + RERST_HOST[ThreadLocalRandom.current().nextInt(0, RERST_HOST.length)] + "/_search/scroll", HttpMethod.POST,
             new HttpEntity<String>(ScrollSearchTemplate.getScrollNextBody(searchResult.getString("_scroll_id")), headers), String.class);
       }
       for (Future<List<OffsetPoints>> future : futureList) {
@@ -273,7 +278,7 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
 
       ResponseEntity<String> response = REST.exchange(
 
-          "http://" + RERST_HOST + "/" + indexNameSearch + "/" + docType + "/_search?scroll=1m", HttpMethod.POST,
+          "http://" + RERST_HOST[ThreadLocalRandom.current().nextInt(0, RERST_HOST.length)] + "/" + indexNameSearch + "/" + docType + "/_search?scroll=1m", HttpMethod.POST,
           new HttpEntity<String>(ScrollSearchTemplate.getScrollSearchBody(topic, group, rangeFrom, sFormat.format(now)), headers),
           String.class);
 
@@ -292,7 +297,7 @@ public class ElasticsearchRESTUtil implements Ielasticsearch {
           LOG.warn("Ops...GenerateOffsetHistoryDataset went wrong! " + e.getMessage());
         }
 
-        response = REST.exchange("http://" + RERST_HOST + "/_search/scroll", HttpMethod.POST,
+        response = REST.exchange("http://" + RERST_HOST[ThreadLocalRandom.current().nextInt(0, RERST_HOST.length)] + "/_search/scroll", HttpMethod.POST,
             new HttpEntity<String>(ScrollSearchTemplate.getScrollNextBody(searchResult.getString("_scroll_id")), headers), String.class);
       }
       for (Future<List<OffsetPoints>> future : futureList) {

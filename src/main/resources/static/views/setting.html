@@ -1,4 +1,11 @@
 <form style="margin-bottom: 25px;">
+	<h3>Kafka</h3>
+	<div class="form-group">
+		<label for="inputKafka">Bootstrap server</label> <input type="text"
+			class="form-control" id="inputKafka" name="bootstrapServers"
+			ng-model="settingForm.bootstrapServers"
+			placeholder="broker1:9092,broker2:9092,brokerN:9092">
+	</div>
 	<h3>Zookeeper</h3>
 	<div class="form-group">
 		<label for="inputZookeeper">Hosts</label> <input type="text"

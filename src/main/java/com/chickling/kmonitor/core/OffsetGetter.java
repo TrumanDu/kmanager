@@ -3,6 +3,7 @@ package com.chickling.kmonitor.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.chickling.kmonitor.initialize.SystemManager;
 import com.chickling.kmonitor.model.BrokerInfo;
 import com.chickling.kmonitor.model.ConsumerDetail;
 import com.chickling.kmonitor.model.KafkaInfo;
@@ -26,6 +28,9 @@ import com.chickling.kmonitor.model.TopicAndConsumersDetails;
 import com.chickling.kmonitor.model.TopicDetails;
 import com.chickling.kmonitor.utils.ZKUtils;
 
+import kafka.admin.ConsumerGroupCommand.ConsumerGroupCommandOptions;
+import kafka.admin.ConsumerGroupCommand.KafkaConsumerGroupService;
+import kafka.admin.ConsumerGroupCommand.PartitionAssignmentState;
 import kafka.cluster.Broker;
 import kafka.cluster.EndPoint;
 import kafka.javaapi.consumer.SimpleConsumer;
@@ -33,6 +38,7 @@ import kafka.utils.ZkUtils;
 import scala.Option;
 import scala.Tuple2;
 import scala.collection.JavaConversions;
+import scala.collection.Seq;
 
 /**
  * @author Hulva Luva.H from ECBD
@@ -49,6 +55,8 @@ public abstract class OffsetGetter {
 	protected static boolean earliest = false;
 
 	protected static final String clientId = "kafkaMonitor";
+	
+	protected static KafkaConsumerGroupService kafkaConsumerGroupService = null; 
 
 	/**
 	 * <code>
@@ -128,6 +136,15 @@ public abstract class OffsetGetter {
 		return binfos;
 
 	}
+	
+	public List<String> getGroupsCommittedToBroker() {
+	  if(kafkaConsumerGroupService == null) {
+        String[] cmd = {"--bootstrap-server", SystemManager.getConfig().getBootstrapServers(), "--list"};
+        ConsumerGroupCommandOptions opts = new ConsumerGroupCommandOptions(cmd);
+        kafkaConsumerGroupService = new KafkaConsumerGroupService(opts);
+      }
+	  return JavaConversions.seqAsJavaList(kafkaConsumerGroupService.listGroups());
+	}
 
 	public List<OffsetInfo> offsetInfo(String group, List<String> topics) throws Exception {
 		List<OffsetInfo> offsetInfos = new ArrayList<OffsetInfo>();
@@ -144,7 +161,11 @@ public abstract class OffsetGetter {
 
 	// get information about a consumer group and the topics it consumes
 	public KafkaInfo getInfo(String group, List<String> topics) throws Exception {
-		List<OffsetInfo> offsetInfos = offsetInfo(group, topics);
+		// for ZK
+	  List<OffsetInfo> offsetInfos = offsetInfo(group, topics);
+		// for Broker
+	  offsetInfos.addAll(this.getOffsetInfoCommittedToBroker(group, topics));
+		
 		Collections.sort(offsetInfos, new Comparator<OffsetInfo>() {
 
 			@Override
@@ -159,6 +180,53 @@ public abstract class OffsetGetter {
 
 		});
 		return new KafkaInfo(group, brokerInfo(), offsetInfos);
+	}
+	
+	private List<OffsetInfo> getOffsetInfoCommittedToBroker(String group, List<String> topics) {
+	  List<OffsetInfo> offsets = new ArrayList<OffsetInfo>();
+	  KafkaConsumerGroupService getTopicForGroup = null;
+      try {
+          String[] cmd = {"--bootstrap-server", SystemManager.getConfig().getBootstrapServers(), "--describe", "--group", group};
+          ConsumerGroupCommandOptions opts = new ConsumerGroupCommandOptions(cmd);
+          getTopicForGroup = new KafkaConsumerGroupService(opts);
+          Tuple2<Option<String>, Option<Seq<PartitionAssignmentState>>> groupAssignment =  
+          getTopicForGroup.describeGroup();
+          List<PartitionAssignmentState> partitionAssignments = JavaConversions.seqAsJavaList(groupAssignment._2().get());
+          
+//          System.out.println(String.format("\n%-30s %-10s %-15s %-15s %-10s %-50s", "TOPIC", "PARTITION", "CURRENT-OFFSET", "LOG-END-OFFSET", "LAG", "CONSUMER-ID"));
+          
+          partitionAssignments.forEach((partitionAssignment) -> {
+            if(!topics.isEmpty() && topics.contains(partitionAssignment.topic().get())) {
+              offsets.add(new OffsetInfo(group, (String)partitionAssignment.topic().get(), 
+                  (Integer) partitionAssignment.partition().get(), 
+                  (Long)partitionAssignment.offset().get(), 
+                  (Long)partitionAssignment.logEndOffset().get(), 
+                  (String)partitionAssignment.consumerId().get(),
+                  new Date().getTime(),
+                  new Date().getTime(),
+                  (Long)partitionAssignment.lag().get()));
+            }else {
+              offsets.add(new OffsetInfo(group, (String)partitionAssignment.topic().get(), 
+                  (Integer) partitionAssignment.partition().get(), 
+                  (Long)partitionAssignment.offset().get(), 
+                  (Long)partitionAssignment.logEndOffset().get(), 
+                  (String)partitionAssignment.consumerId().get(),
+                  0L,
+                  0L,
+                  (Long)partitionAssignment.lag().get()));
+            }
+//            System.out.println(String.format("%-30s %-10s %-15s %-15s %-10s %-50s", 
+//                partitionAssignment.topic().get(), 
+//                partitionAssignment.partition().get(), 
+//                partitionAssignment.offset().get(), 
+//                partitionAssignment.logEndOffset().get(), 
+//                partitionAssignment.lag().get(), 
+//                partitionAssignment.consumerId().get()));
+          });
+      }finally{
+        getTopicForGroup.close();
+      }
+      return offsets;
 	}
 
 	public List<String> getTopics() {
@@ -271,6 +339,7 @@ public abstract class OffsetGetter {
 
 	public void close() {
 		try {
+		    
 			Iterator<Entry<Integer, SimpleConsumer>> it = consumerMap.entrySet().iterator();
 			while (it.hasNext()) {
 				LOG.debug("Closing consumer: " + it.next().getValue().clientId());

@@ -506,6 +506,7 @@ angular.module('offsetapp.controllers', [ "offsetapp.services" ])
 		.controller("SettingCtrl", [ "$scope", "offsetinfo",
 		function($scope, offsetinfo) {
 			var settingFormModal = {
+					bootstrapServers: "",
 					zkHosts: "",
 					dataCollectFrequency: 1,
 					excludeByLastSeen: 2592000,

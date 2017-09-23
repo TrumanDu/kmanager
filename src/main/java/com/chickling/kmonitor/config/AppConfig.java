@@ -5,6 +5,7 @@ package com.chickling.kmonitor.config;
  *
  */
 public class AppConfig {
+    private String bootstrapServers;
 	private String apiType;
 	private String esHosts;
 	private String esIndex;
@@ -30,8 +31,18 @@ public class AppConfig {
 	private String mailSubject;
 
 	private Long excludeByLastSeen = 2592000L;
+	
+	
 
-	public String getApiType() {
+	public String getBootstrapServers() {
+    return bootstrapServers;
+  }
+
+  public void setBootstrapServers(String bootstrapServers) {
+    this.bootstrapServers = bootstrapServers;
+  }
+
+  public String getApiType() {
 		return apiType;
 	}
 

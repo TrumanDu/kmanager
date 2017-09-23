@@ -27,7 +27,12 @@ public class GroupController {
 
 	@RequestMapping(value = { "", "/" }, method = RequestMethod.GET)
 	public List<String> getGroups() {
-		List<String> groups = SystemManager.og.getGroups();
+	    List<String> groups = new ArrayList<String>();
+  	    // groups from ZK(old)
+	    groups = SystemManager.og.getGroups();
+	    // groups from Kafka(which offsets committed to kafka broker)
+	    List<String> groupsCommitToBroker = SystemManager.og.getGroupsCommittedToBroker();
+	    groups.addAll(groupsCommitToBroker);
 		Collections.sort(groups);
 		return groups;
 	}
