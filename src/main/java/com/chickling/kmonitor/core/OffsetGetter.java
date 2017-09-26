@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -136,15 +137,6 @@ public abstract class OffsetGetter {
 		return binfos;
 
 	}
-	
-	public List<String> getGroupsCommittedToBroker() {
-	  if(kafkaConsumerGroupService == null) {
-        String[] cmd = {"--bootstrap-server", SystemManager.getConfig().getBootstrapServers(), "--list"};
-        ConsumerGroupCommandOptions opts = new ConsumerGroupCommandOptions(cmd);
-        kafkaConsumerGroupService = new KafkaConsumerGroupService(opts);
-      }
-	  return JavaConversions.seqAsJavaList(kafkaConsumerGroupService.listGroups());
-	}
 
 	public List<OffsetInfo> offsetInfo(String group, List<String> topics) throws Exception {
 		List<OffsetInfo> offsetInfos = new ArrayList<OffsetInfo>();
@@ -181,7 +173,34 @@ public abstract class OffsetGetter {
 		});
 		return new KafkaInfo(group, brokerInfo(), offsetInfos);
 	}
-	
+	   
+    public List<String> getGroupsCommittedToBroker() {
+      if(kafkaConsumerGroupService == null) {
+        String[] cmd = {"--bootstrap-server", SystemManager.getConfig().getBootstrapServers(), "--list"};
+        ConsumerGroupCommandOptions opts = new ConsumerGroupCommandOptions(cmd);
+        kafkaConsumerGroupService = new KafkaConsumerGroupService(opts);
+      }
+      return JavaConversions.seqAsJavaList(kafkaConsumerGroupService.listGroups());
+    }
+    
+    public Map<String, Set<String>> getTopicGroupMapCommittedToBroker() {
+      Map<String, Set<String>> topicGroupMap = new HashMap<String, Set<String>>();
+      List<String> groups = this.getGroupsCommittedToBroker();
+      groups.forEach(group -> {
+        List<OffsetInfo> offsetInfos = this.getOffsetInfoCommittedToBroker(group, new ArrayList<String>());
+        offsetInfos.forEach(offsetInfo -> {
+          if(topicGroupMap.containsKey(offsetInfo.getTopic())) {
+            topicGroupMap.get(offsetInfo.getTopic()).add(group);
+          }else {
+            Set<String> _groups = new HashSet<String>();
+            _groups.add(group);
+            topicGroupMap.put(offsetInfo.getTopic(), _groups);
+          }
+        });
+      });
+      return topicGroupMap;
+    }
+    
 	private List<OffsetInfo> getOffsetInfoCommittedToBroker(String group, List<String> topics) {
 	  List<OffsetInfo> offsets = new ArrayList<OffsetInfo>();
 	  KafkaConsumerGroupService getTopicForGroup = null;

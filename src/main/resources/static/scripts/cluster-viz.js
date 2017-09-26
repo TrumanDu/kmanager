@@ -76,7 +76,7 @@ function intervalHighchart(result, title) {
 		}
 	    createChart(seriesOptions, title);
 	}catch (err) {
-		console.log("Your browser version is too too low ~");
+		console.log(result, title, err);
 	}
 }
 

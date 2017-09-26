@@ -523,7 +523,7 @@ angular.module('offsetapp.controllers', [ "offsetapp.services" ])
 					mailSubject: ""
 			}
 			
-			$scope.apiTypes = ["Java API", "REST API"];
+			$scope.apiTypes = [/*"Java API", */"REST API"];
 			offsetinfo.getSetting().success(function(d) {
 				if(d.isSystemReady!=undefined && !d.isSystemReady){
 					$scope.settingForm = settingFormModal;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,6 +22,7 @@ import com.chickling.kmonitor.model.OffsetHistory;
  *
  */
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/group")
 public class GroupController {
 	private static Logger LOG = LoggerFactory.getLogger(GroupController.class);

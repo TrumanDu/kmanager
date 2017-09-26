@@ -3,16 +3,19 @@ package com.chickling.kmonitor.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chickling.kmonitor.initialize.SystemManager;
+import com.chickling.kmonitor.model.ConsumerDetail;
 import com.chickling.kmonitor.model.Node;
 import com.chickling.kmonitor.model.TopicAndConsumersDetails;
 import com.chickling.kmonitor.model.TopicDetails;
@@ -21,6 +24,7 @@ import com.chickling.kmonitor.model.TopicDetails;
  * @author Hulva Luva.H
  *
  */
+@CrossOrigin(origins = "*")
 @RestController
 public class TopicController {
 	private static Logger LOG = LoggerFactory.getLogger(TopicController.class);
@@ -34,7 +38,14 @@ public class TopicController {
 
 	@RequestMapping(value = "/topicdetails/{topic}", method = RequestMethod.GET)
 	public TopicDetails getTopicDetails(@PathVariable String topic) {
-		return SystemManager.og.getTopicDetail(topic);
+	    Set<String> groups = SystemManager.og.getTopicGroupMapCommittedToBroker().get(topic);
+	    TopicDetails topicDetails = SystemManager.og.getTopicDetail(topic);
+	    if(groups != null && !groups.isEmpty()) {
+    	    groups.forEach(group -> {
+    	      topicDetails.getConsumers().add(new ConsumerDetail(group));
+    	    });
+	    }
+		return topicDetails;
 	}
 
 	@RequestMapping(value = "/topic/{topic}/consumers", method = RequestMethod.GET)

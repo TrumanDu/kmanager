@@ -11,6 +11,7 @@ import javax.management.MBeanServerConnection;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ import com.chickling.kmonitor.utils.elasticsearch.restapi.ElasticsearchRESTUtil;
  * @since 2017-07-12
  *
  */
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/metrics")
 public class JMXMetricController {

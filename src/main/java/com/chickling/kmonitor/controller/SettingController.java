@@ -1,6 +1,7 @@
 package com.chickling.kmonitor.controller;
 
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,6 +15,7 @@ import com.chickling.kmonitor.initialize.SystemManager;
  * @since 2017-07-13
  *
  */
+@CrossOrigin(origins = "*")
 @RestController
 public class SettingController {
 	@RequestMapping(value = "/isSystemReady", method = RequestMethod.GET)
