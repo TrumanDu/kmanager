@@ -12,6 +12,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<kmanager.controller.version>2.0.0-SNAPSHOT</kmanager.controller.version>
+		<kmanager.colector.version>2.0.0-SNAPSHOT</kmanager.colector.version>
 	</properties>
 	<!-- <repositories>
 		<repository>
@@ -20,19 +22,6 @@
 			<url>http://repo.spring.io/release</url>
 		</repository>
 	</repositories> -->
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<!-- Import dependency management from Spring Boot -->
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>1.5.6.RELEASE</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -54,7 +43,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version><!--$NO-MVN-MAN-VER$ -->
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -81,4 +70,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<modules>
+		<module>kmanager-controller</module>
+		<module>kmanager-collector</module>
+		<module>kmanager-collector08</module>
+		<module>kmanager-collector10</module>
+		<module>kmanager-collector11</module>
+	</modules>
 </project>
