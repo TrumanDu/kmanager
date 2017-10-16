@@ -14,7 +14,6 @@
 	<packaging>jar</packaging>
 
 	<name>kmanager-collector10</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

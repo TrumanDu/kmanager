@@ -12,16 +12,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<kmanager.base.version>2.0.0-SNAPSHOT</kmanager.base.version>
 		<kmanager.controller.version>2.0.0-SNAPSHOT</kmanager.controller.version>
 		<kmanager.colector.version>2.0.0-SNAPSHOT</kmanager.colector.version>
 	</properties>
-	<!-- <repositories>
-		<repository>
-			<id>repository.spring.release</id>
-			<name>Spring GA Repository</name>
-			<url>http://repo.spring.io/release</url>
-		</repository>
-	</repositories> -->
+	<!-- <repositories> <repository> <id>repository.spring.release</id> <name>Spring 
+		GA Repository</name> <url>http://repo.spring.io/release</url> </repository> 
+		</repositories> -->
 
 	<build>
 		<plugins>
@@ -71,6 +68,7 @@
 		</plugins>
 	</build>
 	<modules>
+		<module>kmanager-base</module>
 		<module>kmanager-controller</module>
 		<module>kmanager-collector</module>
 		<module>kmanager-collector08</module>

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-    <artifactId>kmanager</artifactId>
-    <groupId>com.chickling</groupId>
-    <version>2.0.0</version>
-  </parent>
+		<artifactId>kmanager</artifactId>
+		<groupId>com.chickling</groupId>
+		<version>2.0.0</version>
+	</parent>
 
 	<groupId>com.chickling.kmanager</groupId>
 	<artifactId>kmanager-collector</artifactId>
@@ -13,13 +14,17 @@
 	<packaging>jar</packaging>
 
 	<name>kmanager-collector</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.chickling.kmanager</groupId>
+			<artifactId>kmanager-base</artifactId>
+			<version>${kmanager.base.version}</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
