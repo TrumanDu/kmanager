@@ -1,4 +1,4 @@
-package com.chickling.kmanager.controller;
+package com.chickling.kmanager.collector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class KmanagerController {
+public class KmanagerCollector08 {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KmanagerController.class, args);
+		SpringApplication.run(KmanagerCollector08.class, args);
 	}
 
 }

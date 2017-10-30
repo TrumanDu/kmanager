@@ -21,10 +21,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.chickling.kmanager</groupId>
 			<artifactId>kmanager-base</artifactId>
 			<version>${kmanager.base.version}</version>
@@ -47,7 +43,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>1.5.7.RELEASE</version>
+				<version>1.5.8.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
